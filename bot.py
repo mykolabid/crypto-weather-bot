@@ -7,15 +7,19 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-import config
+
 
 from services.crypto import get_crypto_prices
 from services.gold import get_gold_price
 from services.weather import get_weather
 from services.currency import get_usd_uah
 from services.quotes import get_quote
-bot = Bot(token=config.BOT_TOKEN)
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+
+bot = Bot(token=os.getenv("BOT_TOKEN"))
 dp = Dispatcher()
 
 
