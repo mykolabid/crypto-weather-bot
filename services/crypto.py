@@ -1,17 +1,21 @@
 import requests
 
 
-def get_btc_price():
+def get_crypto_prices():
 
     url = "https://api.coingecko.com/api/v3/simple/price"
 
     params = {
-        "ids": "bitcoin",
-        "vs_currencies": "usd"
+        "ids": "bitcoin,ethereum",
+        "vs_currencies": "usd",
+        "include_24hr_change": "true"
     }
 
     response = requests.get(url, params=params)
 
     data = response.json()
 
-    return data["bitcoin"]["usd"]
+    btc = data["bitcoin"]
+    eth = data["ethereum"]
+
+    return btc,eth

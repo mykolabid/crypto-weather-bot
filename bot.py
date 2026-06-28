@@ -3,12 +3,13 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
-
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 import config
 
-from services.crypto import get_btc_price
+from services.crypto import get_crypto_prices
 from services.gold import get_gold_price
 from services.weather import get_weather
 from services.currency import get_usd_uah
@@ -22,19 +23,19 @@ menu = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(
-                text="📊 Bitcoin",
+                text="📊 Bitcoin, Еthereum",
                 callback_data="btc"
             )
         ],
         [
             InlineKeyboardButton(
-                text="🥇 Gold",
+                text="🥇 Золото ціна",
                 callback_data="gold"
             )
         ],
         [
             InlineKeyboardButton(
-                text="🌦 Weather Wrocław",
+                text="🌦 Погода Вроцлав",
                 callback_data="weather"
             )
         ],
@@ -43,15 +44,23 @@ menu = InlineKeyboardMarkup(
                 text="💵 USD → UAH",
                 callback_data="usd"
             )
-        ],  # <- Здесь была пропущена закрывающая скобка рядов
+        ],
         [
             InlineKeyboardButton(
                 text="💡Шахи факти",
                 callback_data="quote"
             )
+        ],
+        [InlineKeyboardButton(
+            text="💬 Побажання",
+            callback_data="wishes"
+        )
         ]
     ]
 )
+
+class Wishes(StatesGroup):
+    waiting = State()
 
 @dp.message(Command("start"))
 async def start(message: Message):
@@ -61,19 +70,41 @@ async def start(message: Message):
         reply_markup=menu
     )
 
+@dp.callback_query(lambda c: c.data == "wishes")
+async def wishes_button(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer(
+        "💬 Напиши своє побажання для бота:"
+    )
+    await state.set_state(Wishes.waiting)
+    await callback.answer()
+
 
 @dp.callback_query()
 async def buttons(callback: CallbackQuery):
-
-
     if callback.data == "btc":
 
-        price = get_btc_price()
+        btc, eth = get_crypto_prices()
+
+        btc_change = btc["usd_24h_change"]
+        eth_change = eth["usd_24h_change"]
+
+        btc_arrow = "📈" if btc_change >= 0 else "📉"
+        eth_arrow = "📈" if eth_change >= 0 else "📉"
 
         await callback.message.answer(
-            f"📊 Bitcoin: {price}$",
+            f"""
+    ₿ Bitcoin:
+    💵 {btc['usd']}$ 
+    {btc_arrow} {btc_change:.2f}% (24h)
+
+
+    Ξ Ethereum:
+    💵 {eth['usd']}$
+    {eth_arrow} {eth_change:.2f}% (24h)
+            """,
             reply_markup=menu
         )
+
 
 
     elif callback.data == "gold":
@@ -115,12 +146,28 @@ async def buttons(callback: CallbackQuery):
             f"💡 {quote}",
             reply_markup=menu
         )
+@dp.message(Wishes.waiting)
+async def wishes_text(message: Message, state: FSMContext):
+
+    text = message.text
+
+    await message.answer(
+        "✅ Дякую! Твоє побажання збережено."
+    )
 
 
+    await bot.send_message(
+        898190826,
+        f"""
+💬 Нове побажання:
 
-    await callback.answer()
+👤 {message.from_user.full_name}
 
+📝 {text}
+"""
+    )
 
+    await state.clear()
 
 async def main():
 
