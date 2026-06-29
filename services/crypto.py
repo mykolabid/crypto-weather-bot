@@ -3,19 +3,20 @@ import requests
 
 def get_crypto_prices():
 
-    url = "https://api.coingecko.com/api/v3/simple/price"
+    btc_url = "https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT"
+    eth_url = "https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT"
 
-    params = {
-        "ids": "bitcoin,ethereum",
-        "vs_currencies": "usd",
-        "include_24hr_change": "true"
+    btc_data = requests.get(btc_url, timeout=5).json()
+    eth_data = requests.get(eth_url, timeout=5).json()
+
+    btc = {
+        "usd": float(btc_data["lastPrice"]),
+        "change": float(btc_data["priceChangePercent"])
     }
 
-    response = requests.get(url, params=params)
+    eth = {
+        "usd": float(eth_data["lastPrice"]),
+        "change": float(eth_data["priceChangePercent"])
+    }
 
-    data = response.json()
-
-    btc = data["bitcoin"]
-    eth = data["ethereum"]
-
-    return btc,eth
+    return btc, eth
