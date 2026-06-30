@@ -8,7 +8,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
-
+from service.handel import get_handlowe
 from services.crypto import get_crypto_prices
 from services.gold import get_gold_price
 from services.weather import get_weather
@@ -58,6 +58,11 @@ menu = InlineKeyboardMarkup(
         [InlineKeyboardButton(
             text="💬 Побажання",
             callback_data="wishes"
+        )
+        ],
+        [InlineKeyboardButton(
+            text="🛒 Niedziela handlowa",
+            callback_data="handel"
         )
         ]
     ]
@@ -150,6 +155,15 @@ async def buttons(callback: CallbackQuery):
             f"💡 {quote}",
             reply_markup=menu
         )
+    elif callback.data == "handel":
+
+        result = get_handlowe()
+
+        await callback.message.answer(
+            result,
+            reply_markup=menu
+        )
+
 @dp.message(Wishes.waiting)
 async def wishes_text(message: Message, state: FSMContext):
 
