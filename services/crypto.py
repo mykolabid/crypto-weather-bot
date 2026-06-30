@@ -1,21 +1,18 @@
 import requests
 
 
-def get_btc_price():
+def get_price(asset: str):
 
-    url = "https://api.binance.com/api/v3/ticker/price"
+    url = f"https://api.coincap.io/v2/assets/{asset}"
 
-    r = requests.get(url, params={"symbol": "BTCUSDT"}, timeout=5)
-    data = r.json()
+    try:
+        r = requests.get(url, timeout=5)
+        data = r.json()
 
-    return float(data.get("price", 0))
+        price = data["data"]["priceUsd"]
 
+        return float(price)
 
-def get_eth_price():
-
-    url = "https://api.binance.com/api/v3/ticker/price"
-
-    r = requests.get(url, params={"symbol": "ETHUSDT"}, timeout=5)
-    data = r.json()
-
-    return float(data.get("price", 0))
+    except Exception as e:
+        print("Crypto API error:", e)
+        return None
