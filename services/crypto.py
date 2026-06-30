@@ -2,7 +2,7 @@ import requests
 
 
 def get_btc():
-    url = "https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT"
+    url = "https://api.binance.com/api/v3/ticker/24hr"
     data = requests.get(url, timeout=5).json()
 
     return{
@@ -12,7 +12,7 @@ def get_btc():
 
 def get_eth():
 
-    url = "https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT"
+    url = "https://api.binance.com/api/v3/ticker/24hr"
     data = requests.get(url, timeout=5).json()
 
     return{
