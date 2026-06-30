@@ -8,8 +8,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
-from service.handel import get_handlowe
-from services.crypto import get_crypto_prices
+from services.handel import get_handlowe
+from services.crypto import get_btc, get_eth
 from services.gold import get_gold_price
 from services.weather import get_weather
 from services.currency import get_usd_uah
@@ -56,14 +56,17 @@ menu = InlineKeyboardMarkup(
             )
         ],
         [InlineKeyboardButton(
-            text="💬 Побажання",
-            callback_data="wishes"
-        )
-        ],
-        [InlineKeyboardButton(
             text="🛒 Niedziela handlowa",
             callback_data="handel"
         )
+        ],
+
+        [InlineKeyboardButton(
+            text="💬 Побажання",
+            callback_data="wishes"
+        )
+
+
         ]
     ]
 )
@@ -92,26 +95,27 @@ async def wishes_button(callback: CallbackQuery, state: FSMContext):
 async def buttons(callback: CallbackQuery):
     if callback.data == "btc":
 
-        btc, eth = get_crypto_prices()
+        btc = get_btc()
 
-        btc_change = btc["usd_24h_change"]
-        eth_change = eth["usd_24h_change"]
+        btc_price = btc["price"]
+        btc_change = btc["change"]
 
-        btc_arrow = "📈" if btc_change >= 0 else "📉"
-        eth_arrow = "📈" if eth_change >= 0 else "📉"
+        eth = get_eth()
+
+        eth_price = eth["price"]
+        eth_change = eth["change"]
+
 
         await callback.message.answer(
             f"""
-    ₿ Bitcoin:
-    💵 {btc['usd']}$ 
-    {btc_arrow} {btc_change:.2f}% (24h)
+        ₿ Bitcoin:
+        💵 {btc_price}$
+        📈 24h: {btc_change}%
 
-
-    Ξ Ethereum:
-    💵 {eth['usd']}$
-    {eth_arrow} {eth_change:.2f}% (24h)
-            """,
-            reply_markup=menu
+        Ξ Ethereum:
+        💵 {eth_price}$
+        📈 24h: {eth_change}%
+        """
         )
 
 

@@ -1,22 +1,21 @@
 import requests
 
 
-def get_crypto_prices():
+def get_btc():
+    url = "https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT"
+    data = requests.get(url, timeout=5).json()
 
-    btc_url = "https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT"
-    eth_url = "https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT"
-
-    btc_data = requests.get(btc_url, timeout=5).json()
-    eth_data = requests.get(eth_url, timeout=5).json()
-
-    btc = {
-        "usd": float(btc_data["lastPrice"]),
-        "change": float(btc_data["priceChangePercent"])
+    return{
+        "price": float(data["lastPrice"]),
+        "change": float(data["priceChangePercent"]),
     }
 
-    eth = {
-        "usd": float(eth_data["lastPrice"]),
-        "change": float(eth_data["priceChangePercent"])
-    }
+def get_eth():
 
-    return btc, eth
+    url = "https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT"
+    data = requests.get(url, timeout=5).json()
+
+    return{
+        "price": float(data["lastPrice"]),
+        "change": float(data["priceChange"]),
+    }
