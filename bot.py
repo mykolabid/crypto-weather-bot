@@ -9,7 +9,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
 from services.handel import get_handlowe
-from services.crypto import get_price
+from services.crypto import get_btc_price, get_eth_price
 from services.gold import get_gold_price
 from services.weather import get_weather
 from services.currency import get_usd_uah
@@ -95,30 +95,17 @@ async def wishes_button(callback: CallbackQuery, state: FSMContext):
 async def buttons(callback: CallbackQuery):
     if callback.data == "btc":
 
-        btc = get_price("BTCUSDT")
+        btc = get_btc_price()
 
-        btc_price = btc["price"]
-        btc_change = btc["change"]
-
-        eth = get_price("ETHUSDT")
-
-        eth_price = eth["price"]
-        eth_change = eth["change"]
-
+        eth = get_eth_price()
 
         await callback.message.answer(
             f"""
-        ₿ Bitcoin:
-        💵 {btc_price}$
-        📈 24h: {btc_change}%
+        ₿ Bitcoin: {btc}$
 
-        Ξ Ethereum:
-        💵 {eth_price}$
-        📈 24h: {eth_change}%
+        Ξ Ethereum: {eth}$
         """
         )
-
-
 
     elif callback.data == "gold":
 
